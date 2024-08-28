@@ -16,6 +16,7 @@ switch (command) {
     break;
   case "cat-file":
     handleCommandCatFile();
+    break;
   default:
     throw new Error(`Unknown command ${command}`);
 }
