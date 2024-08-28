@@ -1,20 +1,34 @@
 const fs = require("fs");
 const path = require("path");
+const LittClient = require("./litt/client");
 
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-console.log("Logs from your program will appear here!");
+const { CommandCatFile } = require("./litt/commands");
 
-// Uncomment this block to pass the first stage
+// console.log("Logs from your program will appear here!");
+
+const littClient = new LittClient();
+
 const command = process.argv[2];
-//
+
 switch (command) {
   case "init":
     createGitDirectory();
     break;
+  case "cat-file":
+    handleCommandCatFile();
   default:
     throw new Error(`Unknown command ${command}`);
 }
-//
+
+function handleCommandCatFile() {
+    const flag = process.argv[3];
+    const hash = process.argv[4];
+
+    const command = new CommandCatFile(flag, hash);
+    littClient.run(command);
+    // console.log(`flag: ${flag}, hash: ${hash}`);
+}
+
 function createGitDirectory() {
   fs.mkdirSync(path.join(process.cwd(), ".git"), { recursive: true });
   fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), { recursive: true });
