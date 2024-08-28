@@ -13,7 +13,7 @@ class CommandHashObject {
         const filePath = path.resolve(this.filePath);
 
         if(!fs.existsSync(filePath)) {
-            throw new Error(`Could not open ${this.filePath}`);
+            throw new Error(`Could not open ${this.filePath} for reading: No such file or directory`);
         }
 
         const fileContent = fs.readFileSync(filePath);
