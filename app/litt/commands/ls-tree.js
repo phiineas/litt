@@ -31,7 +31,7 @@ class CommandLsTree {
         const outputBuffer = zlib.inflateSync(fileContent);
         const output = outputBuffer.toString().split("\0");
 
-        const treeContent = output.slice(1).filter((e) = e.includes(" "));
+        const treeContent = output.slice(1).filter((e) => e.includes(" "));
         const nameOnly = treeContent.map((e) => e.split(" ")[1]);
 
         nameOnly.forEach((name) => process.stdout.write(`${name}\n`));
