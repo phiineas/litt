@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const LittClient = require("./litt/client");
 
-const { CommandCatFile, CommandHashObject } = require("./litt/commands");
+const { CommandCatFile, CommandHashObject, CommandLsTree } = require("./litt/commands");
 
 // console.log("Logs from your program will appear here!");
 
@@ -19,6 +19,9 @@ switch (command) {
     break;
   case "hash-object":
     handleCommandHashObject();        
+    break;
+  case "ls-tree":
+    handleCommandLsTree();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -45,6 +48,23 @@ function handleCommandHashObject() {
     const command = new CommandHashObject(flag, filePath);
     littClient.run(command);
     // console.log(`flag: ${flag}, filePath: ${filePath}`);
+}
+
+function handleCommandLsTree() {
+    let flag = process.argv[3];
+    let hash = process.argv[4];
+
+    if(!hash && flag === "--name-only") {
+        return;
+    }
+
+    if (!hash) {
+        hash = flag;
+        flag = null;
+    }
+
+    const command = new CommandLsTree(flag, hash);
+    littClient.run(command);
 }
 
 function createGitDirectory() {
