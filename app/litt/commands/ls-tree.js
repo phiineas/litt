@@ -26,7 +26,7 @@ class CommandLsTree {
             throw new Error(`Not a valid object name ${hash}`);
         }
 
-        const fileContent = fs.readFileSync(filePath)
+        const fileContent = fs.readFileSync(filePath);
         
         const outputBuffer = zlib.inflateSync(fileContent);
         const output = outputBuffer.toString().split("\0");
