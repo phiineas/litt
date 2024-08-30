@@ -44,7 +44,7 @@ class CommandWriteTree {
                 }
 
                 const currentPath = path.join(basePath, dirContent);
-                const stat = fs.statync(currentPath);
+                const stat = fs.statSync(currentPath);
 
                 if(stat.isDirectory()){
                     const sha = recursiveTreeTraversal(currentPath);
