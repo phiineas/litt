@@ -34,7 +34,7 @@ class CommandWriteTree {
 
     execute() {
         function recursiveTreeTraversal(basePath) {
-            const dirContents = fs.readdirSync(basePath).sort(); // Ensure lexicographical order
+            const dirContents = fs.readdirSync(basePath).sort(); 
         
             const result = [];
         
@@ -51,7 +51,7 @@ class CommandWriteTree {
         
                     if (sha) {
                         result.push({
-                            mode: "040000",
+                            mode: "40000",  
                             basename: dirContent,
                             sha,
                         });
@@ -59,7 +59,7 @@ class CommandWriteTree {
                 } else if (stat.isFile()) {
                     const sha = writeBlob(currentPath);
                     result.push({
-                        mode: "100644",
+                        mode: "100644",  
                         basename: dirContent,
                         sha,
                     });
@@ -80,7 +80,7 @@ class CommandWriteTree {
             }, Buffer.alloc(0));
         
             const tree = Buffer.concat([
-                Buffer.from(`tree ${treeData.length}\0`),
+                Buffer.from(`tree ${treeData.length}\0`),  
                 treeData,
             ]);
         
@@ -99,7 +99,7 @@ class CommandWriteTree {
             fs.writeFileSync(path.join(treeFolderPath, file), compressed);
         
             return hash;
-        }        
+        }             
 
         const sha = recursiveTreeTraversal(process.cwd());
         if (sha) {
