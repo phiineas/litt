@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const LittClient = require("./litt/client");
 
-const { CommandCatFile, CommandHashObject, CommandLsTree } = require("./litt/commands");
+const { CommandCatFile, CommandHashObject, CommandLsTree, CommandWriteTree } = require("./litt/commands");
 
 // console.log("Logs from your program will appear here!");
 
@@ -22,6 +22,9 @@ switch (command) {
     break;
   case "ls-tree":
     handleCommandLsTree();
+    break;
+  case "write-tree":
+    handleCommandWriteTree();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -58,12 +61,17 @@ function handleCommandLsTree() {
         return;
     }
 
-    if (!hash) {
+    if(!hash) {
         hash = flag;
         flag = null;
     }
 
     const command = new CommandLsTree(flag, hash);
+    littClient.run(command);
+}
+
+function handleCommandWriteTree() {
+    const command = new CommandWriteTree();
     littClient.run(command);
 }
 
