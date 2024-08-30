@@ -95,7 +95,6 @@ class CommandWriteTree {
         }
 
         const sha = recursiveTreeTraversal(process.cwd());
-
         process.stdout.write(sha);
     }
 }
