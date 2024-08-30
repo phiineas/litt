@@ -34,7 +34,7 @@ class CommandWriteTree {
 
     execute() {
         function recursiveTreeTraversal(basePath) {
-            const dirContents = fs.readdirSync(basePath).sort(); 
+            const dirContents = fs.readdirSync(basePath); 
         
             const result = [];
         
