@@ -33,8 +33,8 @@ class CommandCommitTree {
             fs.mkdirSync(commitPath);
         }
 
-        const compressedData = zlib.deflateSync(data);
-        fs.writeFileSync(path.join(commitPath, file), compressedData);
+        const compressed = zlib.deflateSync(data);
+        fs.writeFileSync(path.join(commitPath, file), compressed);
 
         process.stdout.write(hash);
     }
