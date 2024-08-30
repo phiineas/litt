@@ -1,39 +1,95 @@
-const fs = require('fs');
-const path = require('path');
-const zlib = require('zlib');
-const crypto = require('crypto');
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+const zlib = require("zlib");
+
+function writeBlob(currentPath) {
+    const fileContent = fs.readFileSync(currentPath);
+    const fileLength = fileContent.length;
+
+    const header = `blob ${fileLength}\0`;
+    const blob = Buffer.concat([Buffer.from(header), fileContent]);
+
+    const hash = crypto.createHash("sha1").update(blob).digest("hex");
+
+    const folder = hash.slice(0, 2);
+    const file = hash.slice(2);
+
+    const folderPath = path.join(process.cwd(), ".git", "objects", folder);
+
+    if(!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+    }
+
+    const compressedData = zlib.deflateSync(blob);
+    fs.writeFileSync(path.join(folderPath, file), compressedData);
+
+    return hash;
+}
 
 class CommandWriteTree {
     constructor() {
-
+        
     }
 
     execute() {
-        const treeFolderPath = path.join(process.cwd(), '.git', 'objects');
-    
-        function recursiveTreeTraversal(dir) {
-            let tree = '';
-            const files = fs.readdirSync(dir);
+        function recursiveTreeTraversal(basePath) {
+            const dirContents = fs.readdirSync(basePath);
 
-            files.forEach(file => {
-                const filePath = path.join(dir, file);
-                const stats = fs.statSync(filePath);
+            const result = [];
 
-                if (stats.isDirectory()) {
-                    const subTreeHash = recursiveTreeTraversal(filePath);
-                    tree += `40000 ${file}\0${Buffer.from(subTreeHash, 'hex')}`;
-                } else {
-                    const fileContent = fs.readFileSync(filePath);
-                    const fileHash = crypto.createHash('sha1').update(`blob ${fileContent.length}\0`).update(fileContent).digest('hex');
-                    tree += `100644 ${file}\0${Buffer.from(fileHash, 'hex')}`;
+            for(const dirContent of dirContents) {
+                if(dirContent.includes(".git")) {
+                    continue;
                 }
-            });
 
-            const treeHeader = `tree ${tree.length}\0`;
-            const treeObject = treeHeader + tree;
-            const hash = crypto.createHash('sha1').update(treeObject).digest('hex');
-            const compressed = zlib.deflateSync(treeObject);
-            fs.writeFileSync(path.join(treeFolderPath, hash.slice(0, 2), hash.slice(2)), compressed);
+                const currentPath = path.join(basePath, dirContent);
+                const stat = fs.statSync(currentPath);
+
+                if(stat.isDirectory()){
+                    const sha = recursiveTreeTraversal(currentPath);
+
+                    if(sha) {
+                        result.push({
+                            mode: "040000",
+                            basename: path.basename(currentPath),
+                            sha,
+                        });
+                    }
+                } else if(stat.isFile()) {
+                    const sha = writeBlob(currentPath);
+                    result.push({
+                        mode: "100644",
+                        basename: path.basename(currentPath),
+                        sha,
+                    });
+                }
+            }
+
+            if(dirContents.length === 0 || result.length === 0) {
+                return null;
+            }
+
+            const treeData = result.reduce((acc, curr) => {
+                const {mode, basename, sha} = curr;
+                return Buffer.concat([acc, Buffer.from(`${mode} ${basename}\0`), Buffer.from(sha, "hex")]);
+            }, Buffer.alloc(0));
+
+            const tree = Buffer.concat([Buffer.from(`tree ${treeData.length}\0`), treeData]);
+
+            const hash = crypto.createHash("sha1").update(tree).digest("hex");
+
+            const folder = hash.slice(0, 2);
+            const file = hash.slice(2);
+
+            const treeFolderPath = path.join(process.cwd(), ".git", "objects", folder);
+
+            if(!fs.existsSync(treeFolderPath)) {
+                fs.mkdirSync(treeFolderPath);
+            }
+
+            const compressed = zlib.deflateSync(tree);
+            fs.writeFileSync(path.join(treeFolderPath, file), compressed);
 
             return hash;
         }
