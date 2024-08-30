@@ -34,65 +34,72 @@ class CommandWriteTree {
 
     execute() {
         function recursiveTreeTraversal(basePath) {
-            const dirContents = fs.readdirSync(basePath);
-
+            const dirContents = fs.readdirSync(basePath).sort(); // Ensure lexicographical order
+        
             const result = [];
-
-            for(const dirContent of dirContents) {
-                if(dirContent.includes(".git")) {
+        
+            for (const dirContent of dirContents) {
+                if (dirContent === ".git") {
                     continue;
                 }
-
+        
                 const currentPath = path.join(basePath, dirContent);
                 const stat = fs.statSync(currentPath);
-
-                if(stat.isDirectory()){
+        
+                if (stat.isDirectory()) {
                     const sha = recursiveTreeTraversal(currentPath);
-
-                    if(sha) {
+        
+                    if (sha) {
                         result.push({
                             mode: "040000",
-                            basename: path.basename(currentPath),
+                            basename: dirContent,
                             sha,
                         });
                     }
-                } else if(stat.isFile()) {
+                } else if (stat.isFile()) {
                     const sha = writeBlob(currentPath);
                     result.push({
                         mode: "100644",
-                        basename: path.basename(currentPath),
+                        basename: dirContent,
                         sha,
                     });
                 }
             }
-
-            if(dirContents.length === 0 || result.length === 0) {
+        
+            if (result.length === 0) {
                 return null;
             }
-
+        
             const treeData = result.reduce((acc, curr) => {
-                const {mode, basename, sha} = curr;
-                return Buffer.concat([acc, Buffer.from(`${mode} ${basename}\0`), Buffer.from(sha, "hex")]);
+                const { mode, basename, sha } = curr;
+                return Buffer.concat([
+                    acc,
+                    Buffer.from(`${mode} ${basename}\0`),
+                    Buffer.from(sha, "hex"),
+                ]);
             }, Buffer.alloc(0));
-
-            const tree = Buffer.concat([Buffer.from(`tree ${treeData.length}\0`), treeData]);
-
+        
+            const tree = Buffer.concat([
+                Buffer.from(`tree ${treeData.length}\0`),
+                treeData,
+            ]);
+        
             const hash = crypto.createHash("sha1").update(tree).digest("hex");
-
+        
             const folder = hash.slice(0, 2);
             const file = hash.slice(2);
-
+        
             const treeFolderPath = path.join(process.cwd(), ".git", "objects", folder);
-
-            if(!fs.existsSync(treeFolderPath)) {
+        
+            if (!fs.existsSync(treeFolderPath)) {
                 fs.mkdirSync(treeFolderPath);
             }
-
+        
             const compressed = zlib.deflateSync(tree);
             fs.writeFileSync(path.join(treeFolderPath, file), compressed);
-
+        
             return hash;
-        }
+        }        
 
         const sha = recursiveTreeTraversal(process.cwd());
         if (sha) {
