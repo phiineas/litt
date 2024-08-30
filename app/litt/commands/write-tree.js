@@ -95,7 +95,12 @@ class CommandWriteTree {
         }
 
         const sha = recursiveTreeTraversal(process.cwd());
-        process.stdout.write(sha);
+        if (sha) {
+            process.stdout.write(sha);
+        } else {
+            console.error("Error: SHA value is null or undefined.");
+            process.exit(1);
+        }
     }
 }
 
