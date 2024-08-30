@@ -39,7 +39,7 @@ class CommandWriteTree {
             const result = [];
 
             for(const dirContent of dirContents) {
-                if(!dirContent.includes(".git")) {
+                if(dirContent.includes(".git")) {
                     continue;
                 }
 
