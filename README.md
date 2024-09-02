@@ -1,59 +1,80 @@
-[![progress-banner](https://backend.codecrafters.io/progress/git/f11732e0-9536-45a5-9058-fad84b10cc77)](https://app.codecrafters.io/users/phiineas?r=2qF)
+# Litt - A Simplified Git Implementation in JavaScript
 
-This is a starting point for JavaScript solutions to the
-["Build Your Own Git" Challenge](https://codecrafters.io/challenges/git).
+Litt is a lightweight, simplified implementation of core Git functionalities using JavaScript. It supports essential Git commands such as initializing repositories, creating blobs, trees, commits, and listing tree objects.
 
-In this challenge, you'll build a small Git implementation that's capable of
-initializing a repository, creating commits and cloning a public repository.
-Along the way we'll learn about the `.git` directory, Git objects (blobs,
-commits, trees etc.), Git's transfer protocols and more.
+## Features
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- **Initialize a Git repository**
+- **Create and manage blobs and trees**
+- **Commit changes to the repository**
+- **List tree objects and inspect blob contents**
 
-# Passing the first stage
+## Commands
 
-The entry point for your Git implementation is in `app/main.js`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+### `init`
+Initializes a new Git repository by creating the necessary `.git` directory structure.
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+```bash
+node app/main.js init
 ```
 
-That's all!
+### `cat-file`
+Displays the content of a blob object.
 
-# Stage 2 & beyond
+```bash
+node app/main.js cat-file <flag> <hash>
+```
+- `<flag>`: The format for displaying the object. Common flags include -p for pretty print.
+- `<hash>`: The SHA-1 hash of the object to display.
 
-Note: This section is for stages 2 and beyond.
+### `hash-object`
+Creates a blob object from a file and returns its hash.
 
-1. Ensure you have `node (21)` installed locally
-1. Run `./your_program.sh` to run your Git implementation, which is implemented
-   in `app/main.js`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+```bash
+node app/main.js hash-object <flag> <filePath>
+```
+- `<flag>`: The format for the object (e.g., -w to write the object).
+- `<filePath>`: The path to the file you want to hash.
 
-# Testing locally
+### `ls-tree`
+Lists the contents of a tree object.
 
-The `your_program.sh` script is expected to operate on the `.git` folder inside
-the current working directory. If you're running this inside the root of this
-repository, you might end up accidentally damaging your repository's `.git`
-folder.
+```bash
+node app/main.js ls-tree <flag> <hash>
+```
+- `<flag>`: The format for listing (e.g., -l for long format).
+- `<hash>`: The SHA-1 hash of the tree object to list.
 
-We suggest executing `your_program.sh` in a different folder when testing
-locally. For example:
+### `write-tree`
+Writes the current working directory as a tree object and returns its hash.
 
-```sh
-mkdir -p /tmp/testing && cd /tmp/testing
-/path/to/your/repo/your_program.sh init
+```bash
+node app/main.js write-tree
 ```
 
-To make this easier to type out, you could add a
-[shell alias](https://shapeshed.com/unix-alias/):
+### `commit-tree`
+Creates a commit object from a tree object and a parent commit hash.
 
-```sh
-alias mygit=/path/to/your/repo/your_program.sh
+```bash
+node app/main.js commit-tree <tree> <commithash> <message>
+```
+- `<tree>`: The SHA-1 hash of the tree object to commit.
+- `<commithash>`: The SHA-1 hash of the parent commit.
+- `<message>`: The commit message.
 
-mkdir -p /tmp/testing && cd /tmp/testing
-mygit init
+## Getting Started
+
+1. Clone the repository
+```bash
+git clone https://github.com/phiineas/litt.git
+```
+
+2. Install the necessary dependencies
+```bash
+npm install
+```
+
+3. Run the Git command using Node.js
+```bash
+node app/main.js <command>
 ```
