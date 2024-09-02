@@ -42,7 +42,7 @@ Lists the contents of a tree object.
 ```bash
 node app/main.js ls-tree <flag> <hash>
 ```
-- `<flag>`: The format for listing (e.g., -l for long format).
+- `<flag>`: The format for listing (e.g., --name-only).
 - `<hash>`: The SHA-1 hash of the tree object to list.
 
 ### `write-tree`
